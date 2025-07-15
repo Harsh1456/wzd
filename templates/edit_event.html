@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Event - VDOT Event Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --primary-light: #e8f0fe;
+            --secondary: #34a853;
+            --warning: #fbbc05;
+            --danger: #ea4335;
+            --light: #f8f9fa;
+            --dark: #202124;
+            --gray: #5f6368;
+            --border: #dadce0;
+            --success: #34a853;
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --gradient: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f9ff, #e6f0ff);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-attachment: fixed;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background: var(--gradient);
+            color: white;
+            padding: 0.8rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover i {
+            transform: rotate(-10deg);
+        }
+        
+        .logo h1 {
+            font-weight: 600;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), #2d9247);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        /* Navigation */
+        nav {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .nav-container {
+            display: flex;
+        }
+        
+        .nav-link {
+            padding: 1.1rem 1.8rem;
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary);
+            transition: width 极.3s ease;
+        }
+        
+        .nav-link.active, .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active:after, .nav-link:hover:after {
+            width: 100%;
+        }
+        
+        /* Main Content */
+        .page {
+            padding: 3rem 0;
+            flex: 1;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .page-title {
+            font-size: 2.3rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            position: relative;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .page-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--gradient);
+            border-radius: 2px;
+        }
+        
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        /* Form Styles */
+        .form-container {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 1.7rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.7rem;
+            font-weight: 500;
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #fcfcfc;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1.2rem;
+            margin-top: 2.5rem;
+        }
+        
+        /* Button Styles */
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover:before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 6px 15px rgba(26, 115, 232, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(26, 115, 232, 0.4);
+        }
+        
+        .btn-outline {
+            background: none;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(26, 115, 232, 0.05);
+            transform: translateY(-3px);
+        }
+        
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+        
+        .alert {
+            padding: 1.1rem 1.8rem;
+            border-radius: 8px;
+            margin-bottom: 1.2rem;
+            font-weight: 500;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .alert-success {
+            background-color: #e6f4ea;
+            color: var(--success);
+            border-left: 5px solid var(--success);
+        }
+        
+        .alert-error {
+            background-color: #fce8e6;
+            color: var(--danger);
+            border-left: 5px solid var(--danger);
+        }
+
+        /* Footer */
+        footer {
+            background-color: white;
+            padding: 1.8rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            color: var(--gray);
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 1.8rem;
+        }
+        
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .nav-container {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-link {
+                padding: 0.9rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                padding: 1.1rem 1.8rem;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .page-title:after {
+                width: 40px;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 1.2rem;
+                text-align: center;
+            }
+            
+            .footer-links {
+                justify-content: center;
+            }
+            
+            .card {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-road"></i>
+                <h1>VDOT Event Management</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">PY</div>
+                <div>
+                    <div>{{ session.username }}</div>
+                    <div>Administrator</div>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Navigation -->
+    <nav>
+        <div class="container nav-container">
+            <a href="{{ url_for('dashboard') }}" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('events') }}" class="nav-link">
+                <i class="fas fa-calendar-alt"></i> Events
+            </a>
+            <a href="{{ url_for('upload_csv') }}" class="nav-link">
+                <i class="fas fa-file-upload"></i> Upload CSV
+            </a>
+            <a href="{{ url_for('new_event') }}" class="nav-link active">
+                <i class="fas fa-plus-circle"></i> Add Event
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="container">
+        <div class="page">
+            <div class="page-header">
+                <h2 class="page-title">Edit Event</h2>
+                <p class="page-subtitle">Update event details for VDOT management system</p>
+            </div>
+            
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="card form-container">
+                <form method="POST" action="{{ url_for('edit_event', event_id=event.id) }}">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Event ID</label>
+                            <input type="text" name="event_id" class="form-control" value="{{ event.event_id }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">District</label>
+                            <input type="text" name="district" class="form-control" value="{{ event.district }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Start Time</label>
+                            <input type="datetime-local" name="start_time" class="form-control" value="{{ event.start_time_local }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End Time</label>
+                            <input type="datetime-local" name="end_time" class="form-control" value="{{ event.end_time_local }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Start Latitude</label>
+                            <input type="text" name="lat_start" class="form-control" value="{{ event.lat_start }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Start Longitude</label>
+                            <input type="text" name="lon_start" class="form-control" value="{{ event.lon_start }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">End Latitude</label>
+                            <input type="text" name="lat_end" class="form-control" value="{{ event.lat_end }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End Longitude</label>
+                            <input type="text" name="lon_end" class="form-control" value="{{ event.lon_end }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Lane Status</label>
+                            <select name="lane_status" class="form-control" required>
+                                <option value="partial" {% if event.lane_status == 'partial' %}selected{% endif %}>Partial</option>
+                                <option value="full" {% if event.lane_status == 'full' %}selected{% endif %}>Full</option>
+                                <option value="shoulder" {% if event.lane_status == 'shoulder' %}selected{% endif %}>Shoulder</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Road Name</label>
+                            <input type="text" name="road_name" class="form-control" value="{{ event.road_name }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-outline">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div>© 2025 Virginia Department of Transportation. All rights reserved.</div>
+            <!-- <div class="footer-links">
+                <a href="#" class="footer-link"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                <a href="#" class="footer-link"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                <a href="#" class="footer-link"><i class="fas fa-envelope"></i> Contact Us</a>
+            </div> -->
+        </div>
+    </footer>
+</body>
+</html>

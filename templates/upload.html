@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload CSV - VDOT Event Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --primary-light: #e8f0fe;
+            --secondary: #34a853;
+            --warning: #fbbc05;
+            --danger: #ea4335;
+            --light: #f8f9fa;
+            --dark: #202124;
+            --gray: #5f6368;
+            --border: #dadce0;
+            --success: #34a853;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 0.8rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover i {
+            transform: rotate(-10deg);
+        }
+        
+        .logo h1 {
+            font-weight: 600;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), #2d9247);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Navigation */
+        nav {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .nav-container {
+            display: flex;
+        }
+        
+        .nav-link {
+            padding: 1.1rem 1.8rem;
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link.active, .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link.active:after, .nav-link:hover:after {
+            width: 100%;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.6rem 1.4rem;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-outline {
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            background-color: transparent;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        
+        /* Main Content */
+        .page {
+            padding: 2.5rem 0;
+            flex: 1;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 1.9rem;
+            font-weight: 600;
+            color: var(--dark);
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .page-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2.2rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        }
+        
+        /* Upload Section */
+        .upload-container {
+            text-align: center;
+        }
+        
+        .upload-icon {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.8rem;
+            transition: var(--transition);
+            border: 3px dashed var(--primary);
+        }
+        
+        .upload-icon i {
+            font-size: 4.2rem;
+            color: var(--primary);
+        }
+        
+        .upload-text {
+            margin-bottom: 2.5rem;
+            color: var(--gray);
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        /* IMPROVED UPLOAD BUTTON STYLES */
+        .file-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.3rem 3.2rem;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+            position: relative;
+            overflow: hidden;
+            gap: 15px;
+            min-width: 320px;
+            border: 2px solid var(--primary-dark);
+        }
+        
+        .file-label:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(26, 115, 232, 0.4);
+        }
+        
+        .file-label:active {
+            transform: translateY(-1px);
+        }
+        
+        .file-label i {
+            font-size: 1.8rem;
+        }
+        
+        #file-name {
+            margin: 2rem 0;
+            color: var(--gray);
+            font-size: 1.1rem;
+            min-height: 24px;
+            font-weight: 500;
+        }
+        
+        /* Upload button */
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.3rem 3.2rem;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
+            gap: 15px;
+            min-width: 320px;
+            margin-top: 1.5rem;
+            border: 2px solid #2d9247;
+        }
+        
+        .upload-btn:hover {
+            background-color: #2d9247;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(52, 168, 83, 0.4);
+        }
+        
+        .upload-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .upload-btn:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            border-color: #808080;
+        }
+        
+        .upload-btn i {
+            font-size: 1.5rem;
+        }
+        
+        /* File info */
+        .file-info {
+            background-color: var(--primary-light);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .file-info h4 {
+            margin-bottom: 1.2rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+        }
+        
+        .file-info ul {
+            padding-left: 1.8rem;
+            color: var(--gray);
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+        
+        .file-info li {
+            margin-bottom: 0.8rem;
+            position: relative;
+        }
+        
+        .file-info li:before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+            position: absolute;
+            left: -1.2rem;
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+        
+        .file-info code {
+            background-color: rgba(26, 115, 232, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+            color: var(--primary-dark);
+        }
+        
+        .example-row {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.2rem;
+            margin-top: 1.5rem;
+            font-family: monospace;
+            font-size: 0.95rem;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            text-align: center;
+        }
+        
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+        
+        .alert {
+            padding: 1.1rem 1.8rem;
+            border-radius: 8px;
+            margin-bottom: 1.2rem;
+            font-weight: 500;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .alert-success {
+            background-color: #e6f4ea;
+            color: var(--success);
+            border-left: 5px solid var(--success);
+        }
+        
+        .alert-error {
+            background-color: #fce8e6;
+            color: var(--danger);
+            border-left: 5px solid var(--danger);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: white;
+            padding: 1.6rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            color: var(--gray);
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 1.8rem;
+        }
+        
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .footer-link:hover {
+            color: var(--primary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .nav-container {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-link {
+                padding: 0.9rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 1.2rem;
+                text-align: center;
+            }
+            
+            .footer-links {
+                justify-content: center;
+            }
+            
+            .file-label, .upload-btn {
+                min-width: 100%;
+                padding: 1.2rem 1.8rem;
+                font-size: 1.2rem;
+            }
+            
+            .upload-icon {
+                width: 110px;
+                height: 110px;
+            }
+            
+            .upload-icon i {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-road"></i>
+                <h1>VDOT Event Management</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">PY</div>
+                <div>
+                    <div>{{ session.username }}</div>
+                    <div>Administrator</div>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Navigation -->
+    <nav>
+        <div class="container nav-container">
+            <a href="{{ url_for('dashboard') }}" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('events') }}" class="nav-link">
+                <i class="fas fa-calendar-alt"></i> Events
+            </a>
+            <a href="{{ url_for('upload_csv') }}" class="nav-link active">
+                <i class="fas fa-file-upload"></i> Upload CSV
+            </a>
+            <a href="{{ url_for('new_event') }}" class="nav-link">
+                <i class="fas fa-plus-circle"></i> Add Event
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="container">
+        <div class="page">
+            <div class="page-header">
+                <h2 class="page-title">Upload Events CSV</h2>
+            </div>
+            
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="card">
+                <div class="upload-container">
+                    
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Upload Event Data</h3>
+                    <p class="upload-text">Upload a CSV file containing event information with the following structure:</p>
+                    
+                    <form method="POST" action="{{ url_for('upload_csv') }}" enctype="multipart/form-data">
+                        <input type="file" id="csv-file" name="csv_file" class="file-input" accept=".csv">
+                        <label for="csv-file" class="file-label">
+                            <i class="fas fa-file-csv"></i> Select CSV File
+                        </label>
+                        
+                        <div id="file-name" style="margin-top: 2rem;"></div>
+                        
+                        <div class="file-info">
+                            <h4><i class="fas fa-info-circle"></i> CSV File Requirements</h4>
+                            <ul>
+                                <li>Must be in CSV format with the following columns in order:</li>
+                                <li><code>event_id</code> - Unique event identifier</li>
+                                <li><code>district</code> - Location district (e.g., Salem)</li>
+                                <li><code>start_time</code> - Start time in UTC format (e.g., 2025-07-07T01:36:00Z)</li>
+                                <li><code>end_time</code> - End time in UTC format (e.g., 2025-07-07T04:36:00Z)</li>
+                                <li><code>lat_start</code> - Starting latitude (decimal degrees)</li>
+                                <li><code>lon_start</code> - Starting longitude (decimal degrees)</li>
+                                <li><code>lat_end</code> - Ending latitude (decimal degrees)</li>
+                                <li><code>lon_end</code> - Ending longitude (decimal degrees)</li>
+                                <li><code>lane_status</code> - Lane status (e.g., shoulder)</li>
+                                <li><code>road_name</code> - Road name (e.g., I-81 SB)</li>
+                                <li>File size should not exceed 10MB</li>
+                                <li>First row must be the header with these exact column names</li>
+                            </ul>
+                            
+                        </div>
+                        
+                        <button type="submit" class="upload-btn">
+                            <i class="fas fa-upload"></i> Upload File
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div>© 2025 Virginia Department of Transportation. All rights reserved.</div>
+            <!-- <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Contact Us</a>
+            </div> -->
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('csv-file').addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                const fileName = this.files[0].name;
+                const fileSize = (this.files[0].size / 1024 / 1024).toFixed(2);
+                document.getElementById('file-name').innerHTML = `
+                    <i class="fas fa-file-csv" style="color: var(--primary);"></i>
+                    <strong>Selected file:</strong> ${fileName} (${fileSize} MB)
+                `;
+            } else {
+                document.getElementById('file-name').textContent = '';
+            }
+        });
+        
+        // Show loading state when form is submitted
+        const form = document.querySelector('form');
+        const submitBtn = document.querySelector('.upload-btn');
+        
+        form.addEventListener('submit', function() {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+        });
+    </script>
+</body>
+</html>

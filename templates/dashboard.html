@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - VDOT Event Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d47a1;
+            --primary-light: #e8f0fe;
+            --secondary: #34a853;
+            --warning: #fbbc05;
+            --danger: #ea4335;
+            --light: #f8f9fa;
+            --dark: #202124;
+            --gray: #5f6368;
+            --border: #dadce0;
+            --success: #34a853;
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --gradient: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f9ff, #e6f0ff);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--gradient);
+            color: white;
+            padding: 0.8rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover i {
+            transform: rotate(-10deg);
+        }
+
+        .logo h1 {
+            font-weight: 600;
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), #2d9247);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Navigation */
+        nav {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-container {
+            display: flex;
+        }
+
+        .nav-link {
+            padding: 1.1rem 1.8rem;
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link.active, .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link.active:after, .nav-link:hover:after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        .page {
+            padding: 3rem 0;
+            flex: 1;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.3rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            position: relative;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--gradient);
+            border-radius: 2px;
+        }
+
+        /* Dashboard Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Always 3 columns */
+            gap: 25px;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border-left: 6px solid;
+            border-top: 1px solid var(--border);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        }
+
+        .stat-card.active {
+            border-left-color: var(--primary);
+        }
+
+        .stat-card.upcoming {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.completed {
+            border-left-color: var(--success);
+        }
+
+        .stat-title {
+            font-size: 1.2rem;
+            color: var(--gray);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-info {
+            display: flex;
+            align-items: center;
+            color: var(--gray);
+            font-size: 1rem;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .stat-info i {
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        /* Event Sections */
+        .event-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.8rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            max-height: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+            padding: 1.3rem 1.8rem;
+            position: sticky;
+            top: 0;
+            font-size: 1.1rem;
+            z-index: 10;
+        }
+
+        td {
+            padding: 1.3rem 1.8rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 1rem;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(26, 115, 232, 0.05);
+        }
+
+        .status-badge {
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-active {
+            background-color: #e6f4ea;
+            color: var(--success);
+        }
+
+        .status-completed {
+            background-color: #fce8e6;
+            color: var(--danger);
+        }
+
+        .status-upcoming {
+            background-color: #fef7e0;
+            color: var(--warning);
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.4rem;
+            border-radius: 8px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .action-btn:hover:before {
+            left: 100%;
+        }
+
+        .view-btn {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        }
+
+        .view-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(26, 115, 232, 0.4);
+        }
+
+        /* Chart container */
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 3rem;
+            min-height: 350px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-container:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient);
+        }
+
+        /* Timezone Indicator */
+        .timezone-indicator {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            box-shadow: var(--card-shadow);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            margin-top: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        /* No events message */
+        .no-events {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            color: var(--gray);
+            font-size: 1.2rem;
+            border: 2px dashed var(--border);
+            margin-top: 1.5rem;
+        }
+
+        .no-events i {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            color: var(--gray);
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+        
+        .alert {
+            padding: 1.1rem 1.8rem;
+            border-radius: 8px;
+            margin-bottom: 1.2rem;
+            font-weight: 500;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .alert-success {
+            background-color: #e6f4ea;
+            color: var(--success);
+            border-left: 5px solid var(--success);
+        }
+        
+        .alert-error {
+            background-color: #fce8e6;
+            color: var(--danger);
+            border-left: 5px solid var(--danger);
+        }
+
+        /* Footer */
+        footer {
+            background-color: white;
+            padding: 1.8rem 0;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            color: var(--gray);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.8rem;
+        }
+
+        .footer-link {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer-link:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .nav-container {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-link {
+                padding: 0.9rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr; /* Stack cards vertically on mobile */
+            }
+
+            .stat-value {
+                font-size: 2.5rem;
+            }
+
+            .page-title:after {
+                width: 40px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 1.2rem;
+                text-align: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
+            
+            .event-section {
+                padding: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-road" aria-hidden="true"></i>
+                <h1>VDOT Event Management</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">{{ session.username | default('PY') | first | upper }}</div>
+                <div>
+                    <div>{{ session.username | default('Unknown User') }}</div>
+                    <div>Administrator</div>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container nav-container">
+            <a href="{{ url_for('dashboard') }}" class="nav-link active">
+                <i class="fas fa-tachometer-alt" aria-hidden="true"></i> Dashboard
+            </a>
+            <a href="{{ url_for('events') }}" class="nav-link">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i> Events
+            </a>
+            <a href="{{ url_for('upload_csv') }}" class="nav-link">
+                <i class="fas fa-file-upload" aria-hidden="true"></i> Upload CSV
+            </a>
+            <a href="{{ url_for('new_event') }}" class="nav-link">
+                <i class="fas fa-plus-circle" aria-hidden="true"></i> Add Event
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page">
+            <div class="page-header">
+                <h2 class="page-title">Dashboard Overview</h2>
+                <div class="timezone-indicator">
+                    <i class="fas fa-clock" aria-hidden="true"></i>
+                    <span id="virginia-time">Loading...</span>
+                </div>
+            </div>
+
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-container">
+                <div class="stat-card active">
+                    <div class="stat-title"><i class="fas fa-road"></i> Active Events</div>
+                    <div class="stat-value">{{ active_count | default(0) }}</div>
+                    <div class="stat-info">
+                        <i class="fas fa-info-circle" aria-hidden="true"></i> Currently affecting traffic
+                    </div>
+                </div>
+                <div class="stat-card upcoming">
+                    <div class="stat-title"><i class="fas fa-clock"></i> Upcoming Events</div>
+                    <div class="stat-value">{{ upcoming_count | default(0) }}</div>
+                    <div class="stat-info">
+                        <i class="fas fa-info-circle" aria-hidden="true"></i> Scheduled for the future
+                    </div>
+                </div>
+                <div class="stat-card completed">
+                    <div class="stat-title"><i class="fas fa-check-circle"></i> Completed Events</div>
+                    <div class="stat-value">{{ completed_count | default(0) }}</div>
+                    <div class="stat-info">
+                        <i class="fas fa-info-circle" aria-hidden="true"></i> Finished events
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events Distribution Chart -->
+            <div class="chart-container">
+                <canvas id="eventsChart" aria-label="Events Distribution Chart"></canvas>
+                <noscript>
+                    <p>Events distribution chart is unavailable because JavaScript is disabled.</p>
+                </noscript>
+            </div>
+
+            <!-- Active Events Section -->
+            <div class="event-section">
+                <div class="section-header">
+                    <h3 class="section-title"><i class="fas fa-road"></i> Active Events</h3>
+                    <div>Showing {{ active_events | length | default(0) }} of {{ active_count | default(0) }} events</div>
+                </div>
+
+                {% if active_events %}
+                <div class="table-container">
+                    <table role="grid">
+                        <thead>
+                            <tr>
+                                <th scope="col">Event ID</th>
+                                <th scope="col">Road Name</th>
+                                <th scope="col">Start Time (EDT)</th>
+                                <th scope="col">End Time (EDT)</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in active_events %}
+                            <tr>
+                                <td>{{ event.event_id | default('N/A') }}</td>
+                                <td>{{ event.road_name | default('N/A') }}</td>
+                                <td>{{ event.start_time_edt | default('N/A') }}</td>
+                                <td>{{ event.end_time_edt | default('N/A') }}</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <a href="{{ url_for('event_detail', event_id=event.id | default(0)) }}" class="action-btn view-btn">
+                                        <i class="fas fa-eye" aria-hidden="true"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="no-events">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                    <p>No active events at this time</p>
+                    <p>All current events have completed or haven't started yet</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Upcoming Events Section -->
+            <div class="event-section">
+                <div class="section-header">
+                    <h3 class="section-title"><i class="fas fa-clock"></i> Upcoming Events</h3>
+                    <div>Showing {{ upcoming_events | length | default(0) }} of {{ upcoming_count | default(0) }} events</div>
+                </div>
+
+                {% if upcoming_events %}
+                <div class="table-container">
+                    <table role="grid">
+                        <thead>
+                            <tr>
+                                <th scope="col">Event ID</th>
+                                <th scope="col">Road Name</th>
+                                <th scope="col">Start Time (EDT)</th>
+                                <th scope="col">End Time (EDT)</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in upcoming_events %}
+                            <tr>
+                                <td>{{ event.event_id | default('N/A') }}</td>
+                                <td>{{ event.road_name | default('N/A') }}</td>
+                                <td>{{ event.start_time_edt | default('N/A') }}</td>
+                                <td>{{ event.end_time_edt | default('N/A') }}</td>
+                                <td><span class="status-badge status-upcoming">Upcoming</span></td>
+                                <td>
+                                    <a href="{{ url_for('event_detail', event_id=event.id | default(0)) }}" class="action-btn view-btn">
+                                        <i class="fas fa-eye" aria-hidden="true"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="no-events">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i>
+                    <p>No upcoming events scheduled</p>
+                    <p>Check back later or add new events</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div>© <script>document.write(new Date().getFullYear());</script> Virginia Department of Transportation. All rights reserved.</div>
+            <!-- <div class="footer-links">
+                <a href="#" class="footer-link"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+                <a href="#" class="footer-link"><i class="fas fa-file-contract"></i> Terms of Service</a>
+                <a href="#" class="footer-link"><i class="fas fa-envelope"></i> Contact Us</a>
+            </div> -->
+        </div>
+    </footer>
+
+    <script>
+        // Initialize last updated time
+        const updateVirginiaTime = () => {
+            const timeElement = document.getElementById('virginia-time');
+            if (!timeElement) {
+                console.error('Element with ID "virginia-time" not found.');
+                return;
+            }
+            const now = new Date();
+            const options = {
+                timeZone: 'America/New_York',
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short'
+            };
+            const formatter = new Intl.DateTimeFormat('en-US', options);
+            timeElement.textContent = formatter.format(now);
+        };
+
+        // Update time immediately and every second
+        try {
+            updateVirginiaTime();
+            setInterval(updateVirginiaTime, 1000);
+        } catch (error) {
+            console.error('Error updating Virginia time:', error);
+        }
+
+        // Events distribution chart
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check if Chart.js is loaded
+            if (typeof window.Chart === 'undefined') {
+                console.error('Chart.js library is not loaded. Ensure the Chart.js script is included and loaded correctly.');
+                return;
+            }
+
+            const ctx = document.getElementById('eventsChart');
+            if (!ctx) {
+                console.error('Canvas element with ID "eventsChart" not found.');
+                return;
+            }
+
+            // Sample data (replace with actual values from your templating engine)
+            const activeCount = Number('{{ active_count | default(0) }}') || 0;
+            const upcomingCount = Number('{{ upcoming_count | default(0) }}') || 0;
+            const completedCount = Number('{{ completed_count | default(0) }}') || 0;
+
+            // Validate data
+            if (isNaN(activeCount) || isNaN(upcomingCount) || isNaN(completedCount)) {
+                console.error('Invalid data for events chart. Ensure active_count, upcoming_count, and completed_count are numbers.');
+                return;
+            }
+
+            const eventsChart = new Chart(ctx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active Events', 'Upcoming Events', 'Completed Events'],
+                    datasets: [{
+                        data: [activeCount, upcomingCount, completedCount],
+                        backgroundColor: [
+                            'rgba(52, 168, 83, 0.7)', // Green for Active
+                            'rgba(251, 188, 5, 0.7)',  // Yellow for Upcoming
+                            'rgba(234, 67, 53, 0.7)'   // Red for Completed
+                        ],
+                        borderColor: [
+                            'rgba(52, 168, 83, 1)',
+                            'rgba(251, 188, 5, 1)',
+                            'rgba(234, 67, 53, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: {
+                                    size: 14
+                                },
+                                padding: 20
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Events Distribution',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            padding: 20
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
