@@ -10,6 +10,7 @@ import os
 import psycopg2
 from datetime import datetime
 from psycopg2 import Error
+from urllib.parse import urlparse
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 
 app = Flask(__name__)
@@ -17,18 +18,15 @@ app = Flask(__name__)
 # Database Configuration
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
-    # Parse Render's DATABASE_URL format
-    url_match = re.match(r'postgres://(.*?):(.*?)@(.*?):(.*?)/(.*)', DATABASE_URL)
-    if url_match:
-        DB_CONFIG = {
-            'host': url_match.group(3),
-            'user': url_match.group(1),
-            'password': url_match.group(2),
-            'database': url_match.group(5),
-            'port': url_match.group(4)
-        }
-    else:
-        raise ValueError("Could not parse DATABASE_URL")
+    # Parse DATABASE_URL using urllib
+    parsed = urlparse(DATABASE_URL)
+    DB_CONFIG = {
+        'host': parsed.hostname,
+        'user': parsed.username,
+        'password': parsed.password,
+        'database': parsed.path[1:],  # Remove leading '/'
+        'port': parsed.port
+    }
 else:  # Fallback for local development
     DB_CONFIG = {
         'host': os.environ.get('DB_HOST'),
