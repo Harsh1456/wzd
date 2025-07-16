@@ -18,22 +18,27 @@ app = Flask(__name__)
 # Database Configuration
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
-    # Parse DATABASE_URL using urllib
-    parsed = urlparse(DATABASE_URL)
-    DB_CONFIG = {
-        'host': parsed.hostname,
-        'user': parsed.username,
-        'password': parsed.password,
-        'database': parsed.path[1:],  # Remove leading '/'
-        'port': parsed.port
-    }
-else:  # Fallback for local development
+    try:
+        parsed = urlparse(DATABASE_URL)
+        DB_CONFIG = {
+            'host': parsed.hostname,
+            'user': parsed.username,
+            'password': parsed.password,
+            'database': parsed.path[1:],
+            'port': parsed.port,
+            'connect_timeout': 3  # Add timeout to prevent hangs
+        }
+    except Exception as e:
+        print(f"Error parsing DATABASE_URL: {e}")
+        DB_CONFIG = {}
+else:
     DB_CONFIG = {
         'host': os.environ.get('DB_HOST'),
         'user': os.environ.get('DB_USER'),
         'password': os.environ.get('DB_PASSWORD'),
         'database': os.environ.get('DB_NAME'),
-        'port': os.environ.get('DB_PORT', '5432')
+        'port': os.environ.get('DB_PORT', '5432'),
+        'connect_timeout': 3
     }
 
 # Use environment variables for secrets
@@ -788,16 +793,18 @@ def initialize_database():
     finally:
         conn.close()
 
-if __name__ == '__main__':
+def start_background_thread():
+    """Start background poller thread safely"""
     initialize_database()
     os.makedirs('Uploads', exist_ok=True)
-    # Only start thread in production or when not in debug mode
-    if not app.debug:
-        poll_thread = threading.Thread(target=background_poller, daemon=True)
-        poll_thread.start()
-    app.run(debug=False)
-else:
-    # For Gunicorn in production
-    initialize_database()
     poll_thread = threading.Thread(target=background_poller, daemon=True)
     poll_thread.start()
+    print("Background thread started")
+
+# Start thread only in production
+if not app.debug and os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
+    start_background_thread()
+
+if __name__ == '__main__':
+    start_background_thread()
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
