@@ -5,7 +5,7 @@ import time
 import csv
 import threading
 import pytz
-import re 
+import re
 import os
 import psycopg2
 from datetime import datetime
@@ -15,13 +15,28 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 app = Flask(__name__)
 
 # Database Configuration
-DB_CONFIG = {
-    'host': os.environ.get('DB_HOST'),
-    'user': os.environ.get('DB_USER'),
-    'password': os.environ.get('DB_PASSWORD'),
-    'database': os.environ.get('DB_NAME'),
-    'port': os.environ.get('DB_PORT', '5432')
-}
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    # Parse Render's DATABASE_URL format
+    url_match = re.match(r'postgres://(.*?):(.*?)@(.*?):(.*?)/(.*)', DATABASE_URL)
+    if url_match:
+        DB_CONFIG = {
+            'host': url_match.group(3),
+            'user': url_match.group(1),
+            'password': url_match.group(2),
+            'database': url_match.group(5),
+            'port': url_match.group(4)
+        }
+    else:
+        raise ValueError("Could not parse DATABASE_URL")
+else:  # Fallback for local development
+    DB_CONFIG = {
+        'host': os.environ.get('DB_HOST'),
+        'user': os.environ.get('DB_USER'),
+        'password': os.environ.get('DB_PASSWORD'),
+        'database': os.environ.get('DB_NAME'),
+        'port': os.environ.get('DB_PORT', '5432')
+    }
 
 # Use environment variables for secrets
 app.secret_key = os.environ.get('SECRET_KEY', 'super_secret_key')  # <-- Replace hardcoded key
@@ -776,9 +791,15 @@ def initialize_database():
         conn.close()
 
 if __name__ == '__main__':
-    initialize_database()  # <-- Add this
+    initialize_database()
     os.makedirs('Uploads', exist_ok=True)
-    # Start thread only in main process
+    # Only start thread in production or when not in debug mode
+    if not app.debug:
+        poll_thread = threading.Thread(target=background_poller, daemon=True)
+        poll_thread.start()
+    app.run(debug=False)
+else:
+    # For Gunicorn in production
+    initialize_database()
     poll_thread = threading.Thread(target=background_poller, daemon=True)
     poll_thread.start()
-    app.run(debug=False)
