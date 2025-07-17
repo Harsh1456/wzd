@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - VDOT Event Management</title>
+    <title>Dashboard - VDOT Lane closure Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -601,7 +601,7 @@
         <div class="container header-container">
             <div class="logo">
                 <i class="fas fa-road" aria-hidden="true"></i>
-                <h1>VDOT Event Management</h1>
+                <h1>VDOT Lane closure event Management</h1>
             </div>
             <div class="user-info">
                 <div class="user-avatar">{{ session.username | default('PY') | first | upper }}</div>
@@ -623,13 +623,13 @@
                 <i class="fas fa-tachometer-alt" aria-hidden="true"></i> Dashboard
             </a>
             <a href="{{ url_for('events') }}" class="nav-link">
-                <i class="fas fa-calendar-alt" aria-hidden="true"></i> Events
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i> Lane Events
             </a>
             <a href="{{ url_for('upload_csv') }}" class="nav-link">
                 <i class="fas fa-file-upload" aria-hidden="true"></i> Upload CSV
             </a>
             <a href="{{ url_for('new_event') }}" class="nav-link">
-                <i class="fas fa-plus-circle" aria-hidden="true"></i> Add Event
+                <i class="fas fa-plus-circle" aria-hidden="true"></i> Add Lane Event
             </a>
         </div>
     </nav>
@@ -659,24 +659,24 @@
             <!-- Stats Cards -->
             <div class="stats-container">
                 <div class="stat-card active">
-                    <div class="stat-title"><i class="fas fa-road"></i> Active Events</div>
+                    <div class="stat-title"><i class="fas fa-road"></i> Active Lane closure</div>
                     <div class="stat-value">{{ active_count | default(0) }}</div>
                     <div class="stat-info">
                         <i class="fas fa-info-circle" aria-hidden="true"></i> Currently affecting traffic
                     </div>
                 </div>
                 <div class="stat-card upcoming">
-                    <div class="stat-title"><i class="fas fa-clock"></i> Upcoming Events</div>
+                    <div class="stat-title"><i class="fas fa-clock"></i> Upcoming Lane closure</div>
                     <div class="stat-value">{{ upcoming_count | default(0) }}</div>
                     <div class="stat-info">
                         <i class="fas fa-info-circle" aria-hidden="true"></i> Scheduled for the future
                     </div>
                 </div>
                 <div class="stat-card completed">
-                    <div class="stat-title"><i class="fas fa-check-circle"></i> Completed Events</div>
+                    <div class="stat-title"><i class="fas fa-check-circle"></i> Completed Lane works</div>
                     <div class="stat-value">{{ completed_count | default(0) }}</div>
                     <div class="stat-info">
-                        <i class="fas fa-info-circle" aria-hidden="true"></i> Finished events
+                        <i class="fas fa-info-circle" aria-hidden="true"></i> Finished Lane Works
                     </div>
                 </div>
             </div>
@@ -685,14 +685,14 @@
             <div class="chart-container">
                 <canvas id="eventsChart" aria-label="Events Distribution Chart"></canvas>
                 <noscript>
-                    <p>Events distribution chart is unavailable because JavaScript is disabled.</p>
+                    <p>Lane closure enets distribution chart is unavailable because JavaScript is disabled.</p>
                 </noscript>
             </div>
 
             <!-- Active Events Section -->
             <div class="event-section">
                 <div class="section-header">
-                    <h3 class="section-title"><i class="fas fa-road"></i> Active Events</h3>
+                    <h3 class="section-title"><i class="fas fa-road"></i> Active Lane closure</h3>
                     <div>Showing {{ active_events | length | default(0) }} of {{ active_count | default(0) }} events</div>
                 </div>
 
@@ -730,7 +730,7 @@
                 {% else %}
                 <div class="no-events">
                     <i class="fas fa-info-circle" aria-hidden="true"></i>
-                    <p>No active events at this time</p>
+                    <p>No active Lane closure at this time</p>
                     <p>All current events have completed or haven't started yet</p>
                 </div>
                 {% endif %}
@@ -739,7 +739,7 @@
             <!-- Upcoming Events Section -->
             <div class="event-section">
                 <div class="section-header">
-                    <h3 class="section-title"><i class="fas fa-clock"></i> Upcoming Events</h3>
+                    <h3 class="section-title"><i class="fas fa-clock"></i> Upcoming Lane closure</h3>
                     <div>Showing {{ upcoming_events | length | default(0) }} of {{ upcoming_count | default(0) }} events</div>
                 </div>
 
@@ -777,7 +777,7 @@
                 {% else %}
                 <div class="no-events">
                     <i class="fas fa-info-circle" aria-hidden="true"></i>
-                    <p>No upcoming events scheduled</p>
+                    <p>No upcoming Lane closure scheduled</p>
                     <p>Check back later or add new events</p>
                 </div>
                 {% endif %}
@@ -856,7 +856,7 @@
             const eventsChart = new Chart(ctx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['Active Events', 'Upcoming Events', 'Completed Events'],
+                    labels: ['Active Lane closure', 'Upcoming Lane closure', 'Completed Lane works'],
                     datasets: [{
                         data: [activeCount, upcomingCount, completedCount],
                         backgroundColor: [
@@ -888,7 +888,7 @@
                         },
                         title: {
                             display: true,
-                            text: 'Events Distribution',
+                            text: 'Lane Events Distribution',
                             font: {
                                 size: 16,
                                 weight: 'bold'
