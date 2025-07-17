@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload CSV - VDOT Event Management</title>
+    <title>Upload CSV - VDOT Lane closure event Management</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -521,7 +521,7 @@
         <div class="container header-container">
             <div class="logo">
                 <i class="fas fa-road"></i>
-                <h1>VDOT Event Management</h1>
+                <h1>VDOT Lane closure event Management</h1>
             </div>
             <div class="user-info">
                 <div class="user-avatar">PY</div>
@@ -549,7 +549,7 @@
                 <i class="fas fa-file-upload"></i> Upload CSV
             </a>
             <a href="{{ url_for('new_event') }}" class="nav-link">
-                <i class="fas fa-plus-circle"></i> Add Event
+                <i class="fas fa-plus-circle"></i> Add Lane Event
             </a>
         </div>
     </nav>
@@ -558,7 +558,7 @@
     <main class="container">
         <div class="page">
             <div class="page-header">
-                <h2 class="page-title">Upload Events CSV</h2>
+                <h2 class="page-title">Upload Lane Events CSV</h2>
             </div>
             
             <div class="flash-messages">
@@ -577,8 +577,8 @@
                     <div class="upload-icon">
                         <i class="fas fa-cloud-upload-alt"></i>
                     </div>
-                    <h3>Upload Event Data</h3>
-                    <p class="upload-text">Upload a CSV file containing event information with the following structure:</p>
+                    <h3>Upload Lane closure event Data</h3>
+                    <p class="upload-text">Upload a CSV file containing Lane closure event information with the following structure:</p>
                     
                     <form method="POST" action="{{ url_for('upload_csv') }}" enctype="multipart/form-data">
                         <input type="file" id="csv-file" name="csv_file" class="file-input" accept=".csv">
@@ -592,7 +592,7 @@
                             <h4><i class="fas fa-info-circle"></i> CSV File Requirements</h4>
                             <ul>
                                 <li>Must be in CSV format with the following columns in order:</li>
-                                <li><code>event_id</code> - Unique event identifier</li>
+                                <li><code>event_id</code> - Unique Lane closure event identifier</li>
                                 <li><code>district</code> - Location district (e.g., Salem)</li>
                                 <li><code>start_time</code> - Start time in UTC format (e.g., 2025-07-07T01:36:00Z)</li>
                                 <li><code>end_time</code> - End time in UTC format (e.g., 2025-07-07T04:36:00Z)</li>
